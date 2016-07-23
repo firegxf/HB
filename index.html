@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jquery.js"></script>
+    <script src="shape.js"></script>
+    <style>
+        *{
+            margin: 0;padding: 0;
+            list-style: none;
+        }
+        body{
+            background: url("big1.jpg") 100px,-100px;
+        }
+        .canvas_box{
+            width: 850px;
+            height:600px;
+            border: 1px solid #201f23;
+            margin: 0px auto;
+            margin-top:20px;
+            position: relative;
+            box-shadow:0px 5px 8px #0e123e;
+        }
+        .itm{
+            width: 100%;
+            height:40px;
+            background-color: #5f5f5f;
+        }
+        .gongju{
+            width:auto;
+            min-width: 40px;
+            padding-left: 4px;
+            padding-right: 4px;
+            height:30px;
+            float: left;
+            line-height:30px;
+            text-align: center;
+            font-size:16px;
+            color:#fff;
+            /*border:1px solid #eff4ff;*/
+            border-radius: 5px;
+            margin: 5px 15px;
+            margin-bottom:0px;
+            /*background: #ff8d55;*/
+            cursor: pointer;
+            position: relative;
+        }
+        .gjmore{
+            width: 80px;
+            background: #aaaaa5;
+            position: absolute;
+            top:30px;
+            left:-15px;
+            text-align: center;
+            display: none;
+            z-index:999;
+        }
+        .gjmore>li:hover{
+            background-color: #201f23;
+        }
+        canvas{
+            background-color: #ccc;
+        }
+
+        .zdy span{
+            /*border: 1px solid #e7e5eb;*/
+            /*background: #29aecc;*/
+            color: #fff;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .zdy input{
+            width: 40px;
+        }
+
+        .xp{
+            width: 20px;
+            height:20px;
+            position: absolute;
+            top:40px;
+            left:0px;
+            border:1px solid #fff;
+            display: none;
+        }
+        .copy{
+            width:850px ;
+            height:560px;
+            position: absolute;
+            left: 0;
+            top:40px;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+<div class="canvas_box">
+    <div class="itm">
+        <div class="gongju">文件
+                <ul class="gjmore">
+                    <li class="save">保存</li>
+                    <li class="back">撤回</li>
+                    <!--<li class="qk">清空</li>-->
+                </ul>
+        </div>
+        <div class="gongju">形状
+            <ul class="gjmore">
+                <li data-role="huabi">画笔</li>
+                <li data-role="line">直线</li>
+                <li data-role="rect">矩形</li>
+                <li data-role="arc">圆形</li>
+                <li data-role="bian"><input class="biann" type="text" placeholder="多边形" style="width:50%"></li>
+                <li data-role="jiao"><input class="jiaoo" type="text" placeholder="多角形" style="width:50%"></li>
+            </ul>
+        </div>
+        <div class="gongju">粗细
+            <ul class="gjmore">
+                <li lwidth="1">细</li>
+                <li lwidth="5">中等</li>
+                <li lwidth="10">粗</li>
+                <li><input   class="line_zdy" type="text" placeholder="线宽" style="width:50%"></li>
+            </ul>
+        </div>
+        <div class="gongju">
+            模式
+            <ul class="gjmore">
+                <li tian-role="fill">填充</li>
+                <li tian-role="stroke">描边</li>
+            </ul>
+        </div>
+        <div class="gongju">填充色 <input type=color class="tianchong"></div>
+        <div class="gongju">描边色 <input type=color class="miaobian"></div>
+        <div class="gongju">橡皮
+            <ul class="gjmore">
+                <li xp_size="10">小号</li>
+                <li xp_size="20">中号</li>
+                <li xp_size="50">大号</li>
+            </ul>
+        </div>
+        <div class="gongju qk">清空</div>
+    </div>
+    <canvas width="850" height="560" >
+        您的浏览器不支持canvas
+    </canvas>
+    <div class="xp"></div>
+    <div class="copy"></div>
+</div>
+
+
+</body>
+<script>
+    window.onload=function(){
+
+        var canvas=document.getElementsByTagName("canvas")[0];
+        var copy=document.getElementsByClassName("copy")[0];
+        var cobj=canvas.getContext("2d");
+         var obj=new Shape(canvas,cobj,copy);
+//        工具操作
+        $(".gongju").hover(function(){
+            $(this).find(".gjmore").stop();
+            $(this).find(".gjmore").slideDown();
+        },function () {
+            $(this).find(".gjmore").stop();
+            $(this).find(".gjmore").slideUp();
+        })
+        $(".gjmore>li").click(function(){
+//            $(".gongju").find(".gjmore").hide();
+            if($(this).attr("data-role")){
+                obj.type=$(this).attr("data-role");
+            }
+            if($(this).attr("lwidth")) {
+                obj.lineWidth = parseInt($(this).attr("lwidth"));
+            }
+            if($(this).attr("tian-role")){
+                obj.style=$(this).attr("tian-role");
+            }
+            if($(this).attr("xp_size")){
+                obj.style=$(this).attr("xp_size");
+            }
+        })
+//        橡皮操作
+        $("li[xp_size]").click(function(){
+            $(".xp").css("display","block")
+            var xpobj=$(".xp")[0];
+            obj.xp(xpobj);
+            obj.xp_size=$(this).attr("xp_size")
+        })
+        $("li").not("li[xp_size]").click(function(){
+            $(".xp").css("display","none");
+            copy.onmousemove=null;
+            copy.onmousedown=null;
+            obj.draw();
+        })
+
+
+
+//
+        $(".tianchong").blur(function(){
+           obj.fillStyle=$(this).val();
+        })
+        $(".miaobian").blur(function(){
+            obj.strokeStyle=$(this).val();
+        })
+//        自定义
+//        $(".gjmore").find("input").blur(function(){
+//              obj.biannum=$(this).val();
+//              obj.jiaonum=$(this).val()
+////            obj.lineWidth=$(this).val();
+//        })
+       $(".bainn").blur(function(){
+           obj.biannum=$(this).val();
+       })
+        $(".jiaoo").blur(function(){
+            obj.jiaonum=$(this).val();
+        })
+        $(".line_zdy").blur(function(){
+            obj.lineWidth=$(this).val();
+        })
+         obj.draw();
+//        返回操作
+        var back=document.getElementsByClassName("back")[0];
+        back.onclick=function(){
+            obj.history.pop();
+            if(obj.history.length==0){
+                cobj.clearRect(0,0,canvas.width,canvas.height)
+                alert("不能返回")
+            }else{
+                cobj.putImageData(obj.history[obj.history.length-1],0,0)
+            }
+        }
+//        清空操作
+        var qk=document.getElementsByClassName("qk")[0];
+        qk.onclick=function(){
+            cobj.clearRect(0,0,canvas.width,canvas.height);
+            obj.history=[];
+        }
+//        保存操作
+        var save=document.getElementsByClassName("save")[0];
+        save.onclick=function(){
+            var str=canvas.toDataURL().replace("data:image/png","data:stream/octet")
+            location.href=str;
+        }
+    }
+</script>
+<!-- 文件  画图  类型  颜色 （线条  填充）  线条宽度    橡皮  选择
+     整站开发一套  个人主页完善
+-->
+</html>
